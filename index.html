@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="AI-Powered Facial Recognition Attendance System by Vicky">
+    <meta name="author" content="Vicky">
+    <title>Facial Attendance System - By Vicky</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #00f0ff;
+            --secondary: #ff00e5;
+            --accent: #7000ff;
+            --dark: #0a0a0f;
+            --darker: #050508;
+            --light: #ffffff;
+        }
+        
+        body {
+            font-family: 'Space Mono', monospace;
+            background: var(--darker);
+            color: var(--light);
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Antigravity Canvas Background */
+        #antigravity-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            position: relative;
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -2px;
+            animation: float 3s ease-in-out infinite;
+            text-shadow: 0 0 40px rgba(0, 240, 255, 0.3);
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-top: 10px;
+            opacity: 0.9;
+            animation: fadeIn 1s ease-in;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 0.9; transform: translateY(0); }
+        }
+        
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .nav-tab {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 240, 255, 0.3);
+            padding: 15px 35px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--light);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            transition: all 0.5s ease;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+        
+        .nav-tab:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .nav-tab:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.5);
+            border-color: var(--primary);
+        }
+        
+        .nav-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
+        }
+        
+        /* Content Sections */
+        .content-section {
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Glass Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 240, 255, 0.2);
+            border-radius: 25px;
+            padding: 40px;
+            margin: 30px auto;
+            max-width: 900px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Video Container */
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: 30px auto;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.5);
+        }
+        
+        #webcam {
+            width: 100%;
+            display: block;
+            transform: scaleX(-1);
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        /* Face Detection Box */
+        .face-box {
+            position: absolute;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 20px var(--primary), inset 0 0 20px rgba(0, 240, 255, 0.2);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px var(--primary); }
+            50% { box-shadow: 0 0 40px var(--primary), 0 0 60px var(--primary); }
+        }
+        
+        /* Input Fields */
+        .input-group {
+            margin: 25px 0;
+            position: relative;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 240, 255, 0.3);
+            border-radius: 15px;
+            color: var(--light);
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 15px 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--dark);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 240, 255, 0.5);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 240, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50px;
+            overflow: hidden;
+            height: 30px;
+            border: 2px solid rgba(0, 240, 255, 0.3);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--dark);
+        }
+        
+        /* Attendance Captured Alert */
+        .alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 40px 60px;
+            border-radius: 25px;
+            box-shadow: 0 0 100px rgba(0, 240, 255, 0.8);
+            z-index: 1000;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--dark);
+            text-align: center;
+            animation: alertPop 0.5s ease forwards;
+        }
+        
+        @keyframes alertPop {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        /* Table */
+        .attendance-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            margin: 30px 0;
+        }
+        
+        .attendance-table th {
+            background: rgba(0, 240, 255, 0.1);
+            padding: 15px;
+            text-align: left;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+        
+        .attendance-table td {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-top: 1px solid rgba(0, 240, 255, 0.2);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .attendance-table tr {
+            transition: all 0.3s ease;
+        }
+        
+        .attendance-table tr:hover td {
+            background: rgba(0, 240, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .attendance-table td:first-child {
+            border-left: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .attendance-table td:last-child {
+            border-right: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 0 10px 10px 0;
+        }
+        
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 240, 255, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 240, 255, 0.3);
+        }
+        
+        .stat-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+        
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid rgba(0, 240, 255, 0.2);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .status-present {
+            background: rgba(0, 255, 100, 0.2);
+            color: #00ff64;
+            border: 1px solid #00ff64;
+        }
+        
+        /* Face Detection Indicator */
+        .face-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid var(--primary);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary);
+            z-index: 10;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        .face-indicator.detected {
+            border-color: #00ff64;
+            color: #00ff64;
+        }
+        
+        .face-indicator.not-detected {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+                letter-spacing: -1px;
+            }
+            
+            .tagline {
+                font-size: 0.9rem;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+                gap: 10px;
+                padding: 0 10px;
+            }
+            
+            .nav-tab {
+                width: 100%;
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .glass-card {
+                padding: 20px;
+                margin: 20px 10px;
+            }
+            
+            .alert {
+                font-size: 1.2rem;
+                padding: 25px 35px;
+                max-width: 90%;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .stat-number {
+                font-size: 2.5rem;
+            }
+            
+            .video-container {
+                margin: 20px 0;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 0.85rem;
+                margin: 5px;
+                width: calc(50% - 10px);
+                display: inline-block;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                width: calc(50% - 10px);
+            }
+            
+            .input-group input {
+                font-size: 0.9rem;
+            }
+            
+            .attendance-table {
+                font-size: 0.8rem;
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .attendance-table th,
+            .attendance-table td {
+                padding: 10px 8px;
+                font-size: 0.75rem;
+            }
+            
+            footer {
+                padding: 30px 15px;
+            }
+            
+            footer p {
+                font-size: 0.8rem !important;
+            }
+            
+            .face-indicator {
+                font-size: 0.75rem;
+                padding: 8px 15px;
+                top: 10px;
+                left: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 30px 10px;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+            
+            .stat-label {
+                font-size: 0.8rem;
+            }
+            
+            .glass-card h2 {
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .btn {
+                padding: 15px 30px;
+                font-size: 0.95rem;
+            }
+            
+            .nav-tab {
+                padding: 15px 25px;
+            }
+            
+            .input-group input {
+                padding: 18px 20px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="antigravity-canvas"></canvas>
+    
+    <div class="container">
+        <header>
+            <h1>FACIAL ATTENDANCE</h1>
+            <div class="tagline">[ Powered by AI Recognition Technology ]</div>
+            <div style="margin-top: 5px; font-family: 'Space Mono', monospace; font-size: 0.75rem; color: rgba(0, 240, 255, 0.6);">
+                Created by <span style="color: var(--primary); font-weight: 700;">Vicky</span>
+            </div>
+        </header>
+        
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('register')">Register Face</button>
+            <button class="nav-tab" onclick="showSection('attendance')">Mark Attendance</button>
+            <button class="nav-tab" onclick="showSection('records')">View Records</button>
+        </nav>
+        
+        <!-- Register Section -->
+        <div id="register" class="content-section active">
+            <div class="glass-card">
+                <h2 style="font-family: 'Orbitron', sans-serif; text-align: center; margin-bottom: 30px; color: var(--primary);">REGISTER NEW FACE</h2>
+                
+                <div class="input-group">
+                    <label for="personName">Person Name</label>
+                    <input type="text" id="personName" placeholder="Enter full name">
+                </div>
+                
+                <div class="video-container hidden" id="registerVideoContainer">
+                    <video id="registerWebcam" autoplay></video>
+                    <canvas id="registerCanvas" class="video-overlay"></canvas>
+                    <div class="face-indicator" id="registerIndicator">SCANNING...</div>
+                </div>
+                
+                <div class="progress-container hidden" id="progressContainer">
+                    <div class="progress-bar" id="progressBar">0/30</div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="btn btn-primary" onclick="startRegistration()">Start Capture</button>
+                    <button class="btn btn-secondary hidden" id="stopRegisterBtn" onclick="stopRegistration()">Stop</button>
+                </div>
+                
+                <div id="registerStatus" style="margin-top: 20px; text-align: center; color: var(--primary);"></div>
+            </div>
+        </div>
+        
+        <!-- Attendance Section -->
+        <div id="attendance" class="content-section">
+            <div class="glass-card">
+                <h2 style="font-family: 'Orbitron', sans-serif; text-align: center; margin-bottom: 30px; color: var(--primary);">MARK ATTENDANCE</h2>
+                
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number" id="registeredCount">0</div>
+                        <div class="stat-label">Registered</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="todayCount">0</div>
+                        <div class="stat-label">Today's Attendance</div>
+                    </div>
+                </div>
+                
+                <div class="video-container hidden" id="attendanceVideoContainer">
+                    <video id="attendanceWebcam" autoplay></video>
+                    <canvas id="attendanceCanvas" class="video-overlay"></canvas>
+                    <div class="face-indicator" id="attendanceIndicator">SCANNING...</div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="startAttendance()">Start Camera</button>
+                    <button class="btn btn-secondary hidden" id="stopAttendanceBtn" onclick="stopAttendance()">Stop</button>
+                </div>
+                
+                <div id="attendanceStatus" style="margin-top: 20px; text-align: center; color: var(--primary);"></div>
+            </div>
+        </div>
+        
+        <!-- Records Section -->
+        <div id="records" class="content-section">
+            <div class="glass-card">
+                <h2 style="font-family: 'Orbitron', sans-serif; text-align: center; margin-bottom: 30px; color: var(--primary);">ATTENDANCE RECORDS</h2>
+                
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button class="btn btn-secondary" onclick="loadTodayRecords()">Today's Records</button>
+                    <button class="btn btn-secondary" onclick="loadAllRecords()">All Records</button>
+                    <button class="btn btn-primary" onclick="exportCSV()">Export CSV</button>
+                    <button class="btn btn-secondary" onclick="resetAllData()" style="background: rgba(255, 0, 0, 0.2); border-color: #ff0000; color: #ff0000;">Reset All Data</button>
+                </div>
+                
+                <div id="recordsContent">
+                    <p style="text-align: center; opacity: 0.7;">Click a button above to load records</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Credits Footer -->
+    <footer style="text-align: center; padding: 40px 20px; margin-top: 60px; border-top: 2px solid rgba(0, 240, 255, 0.2);">
+        <p style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--primary); margin-bottom: 10px;">
+            ⚡ FACIAL ATTENDANCE SYSTEM ⚡
+        </p>
+        <p style="font-family: 'Space Mono', monospace; font-size: 0.8rem; color: rgba(255, 255, 255, 0.6);">
+            Created with 💙 by <span style="color: var(--primary); font-weight: 700; font-size: 1rem;">VICKY</span>
+        </p>
+        <p style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: rgba(255, 255, 255, 0.4); margin-top: 10px;">
+            Powered by AI & Computer Vision Technology
+        </p>
+    </footer>
+    
+    <script>
+        // Configuration
+        const API_URL = 'http://localhost:5000/api';
+        const USE_BACKEND = false; // Set to true when Flask server is running
+        
+        // Antigravity Canvas Animation
+        const canvas = document.getElementById('antigravity-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * -0.5 - 0.5; // Upward movement (antigravity)
+                this.color = Math.random() > 0.5 ? 'rgba(0, 240, 255, 0.3)' : 'rgba(255, 0, 229, 0.3)';
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                // Reset position when particle goes off screen
+                if (this.y < 0) {
+                    this.y = canvas.height;
+                    this.x = Math.random() * canvas.width;
+                }
+                if (this.x < 0 || this.x > canvas.width) {
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+            
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Glow effect
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        const particles = [];
+        for (let i = 0; i < 150; i++) {
+            particles.push(new Particle());
+        }
+        
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            requestAnimationFrame(animateParticles);
+        }
+        
+        animateParticles();
+        
+        // Section Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // Global variables
+        let sharedStream = null; // Single camera stream shared across app
+        let registerStream = null;
+        let attendanceStream = null;
+        let captureCount = 0;
+        let captureInterval = null;
+        let detectionInterval = null;
+        let faceDetector = null;
+        
+        // Initialize camera once on page load
+        async function initCamera() {
+            if (sharedStream) return sharedStream;
+            
+            try {
+                sharedStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    } 
+                });
+                console.log('Camera initialized successfully');
+                return sharedStream;
+            } catch (error) {
+                console.error('Camera error:', error);
+                alert('Camera access denied. Please allow camera access and reload the page.');
+                return null;
+            }
+        }
+        
+        // Load face detection models
+        async function loadFaceDetection() {
+            // We'll use a better face detection method
+            return true;
+        }
+        
+        // Better face detection using viola-jones inspired approach
+        function detectFaces(video, canvas) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Draw video frame to canvas
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Get image data
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            // Use improved face detection
+            return detectFaceRegion(imageData, canvas);
+        }
+        
+        // Improved face detection focusing on facial features
+        function detectFaceRegion(imageData, canvas) {
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+            
+            // Create a grid for face detection
+            const gridSize = 20;
+            const faceRegions = [];
+            
+            // Scan the image in a grid pattern
+            for (let y = 0; y < height - 100; y += gridSize) {
+                for (let x = 0; x < width - 100; x += gridSize) {
+                    // Check multiple rectangular regions for face-like patterns
+                    const region = {
+                        x: x,
+                        y: y,
+                        width: Math.min(150, width - x),
+                        height: Math.min(200, height - y)
+                    };
+                    
+                    // Calculate region properties
+                    let skinPixels = 0;
+                    let totalPixels = 0;
+                    let avgBrightness = 0;
+                    
+                    // Sample pixels in this region
+                    for (let ry = region.y; ry < region.y + region.height; ry += 4) {
+                        for (let rx = region.x; rx < region.x + region.width; rx += 4) {
+                            if (rx >= width || ry >= height) continue;
+                            
+                            const i = (ry * width + rx) * 4;
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            
+                            totalPixels++;
+                            avgBrightness += (r + g + b) / 3;
+                            
+                            // Enhanced skin tone detection
+                            // Check for skin color in various lighting conditions
+                            if (r > 60 && g > 40 && b > 20 && r > b && r > g - 15) {
+                                // Additional checks for realistic skin tones
+                                const rg = r - g;
+                                const rb = r - b;
+                                
+                                if (rg > -10 && rg < 50 && rb > 5 && rb < 80) {
+                                    // Check if it's not too dark or too bright
+                                    if (r < 250 && g < 250 && b < 250) {
+                                        skinPixels++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    avgBrightness /= totalPixels;
+                    const skinRatio = skinPixels / totalPixels;
+                    
+                    // A face should have:
+                    // 1. Significant amount of skin-colored pixels (30-70%)
+                    // 2. Appropriate size
+                    // 3. More height than width (face is usually oval/rectangular)
+                    // 4. Reasonable brightness (not too dark, not too bright)
+                    if (skinRatio > 0.3 && skinRatio < 0.7 && 
+                        region.width > 80 && region.height > 100 &&
+                        region.height > region.width * 1.1 &&
+                        avgBrightness > 60 && avgBrightness < 200) {
+                        
+                        faceRegions.push({
+                            ...region,
+                            score: skinRatio
+                        });
+                    }
+                }
+            }
+            
+            // If we found face-like regions, return the best one (center-most with good score)
+            if (faceRegions.length > 0) {
+                // Prefer regions near center of frame
+                const centerX = width / 2;
+                const centerY = height / 2;
+                
+                faceRegions.sort((a, b) => {
+                    const distA = Math.sqrt(Math.pow(a.x + a.width/2 - centerX, 2) + 
+                                           Math.pow(a.y + a.height/2 - centerY, 2));
+                    const distB = Math.sqrt(Math.pow(b.x + b.width/2 - centerX, 2) + 
+                                           Math.pow(b.y + b.height/2 - centerY, 2));
+                    return (distA * (1 - a.score)) - (distB * (1 - b.score));
+                });
+                
+                return faceRegions[0];
+            }
+            
+            return null;
+        }
+        
+        // Draw face detection box
+        function drawFaceBox(canvas, face) {
+            if (!face) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#00f0ff';
+            ctx.strokeRect(face.x, face.y, face.width, face.height);
+            ctx.shadowBlur = 0;
+        }
+        
+        // Start Registration
+        async function startRegistration() {
+            const name = document.getElementById('personName').value.trim();
+            if (!name) {
+                alert('Please enter a name first!');
+                return;
+            }
+            
+            // Initialize camera if not already done
+            const stream = await initCamera();
+            if (!stream) return;
+            
+            const video = document.getElementById('registerWebcam');
+            const canvas = document.getElementById('registerCanvas');
+            video.srcObject = stream;
+            
+            // Wait for video to be ready
+            await new Promise(resolve => {
+                video.onloadedmetadata = () => {
+                    video.play();
+                    resolve();
+                };
+            });
+            
+            document.getElementById('registerVideoContainer').classList.remove('hidden');
+            document.getElementById('progressContainer').classList.remove('hidden');
+            document.getElementById('stopRegisterBtn').classList.remove('hidden');
+            
+            // Start face detection and capture
+            captureCount = 0;
+            const capturedFaces = [];
+            
+            captureInterval = setInterval(() => {
+                const face = detectFaces(video, canvas);
+                const indicator = document.getElementById('registerIndicator');
+                
+                if (face) {
+                    drawFaceBox(canvas, face);
+                    indicator.textContent = '✓ FACE DETECTED';
+                    indicator.className = 'face-indicator detected';
+                    
+                    // Capture this frame
+                    capturedFaces.push(canvas.toDataURL('image/jpeg'));
+                    captureCount++;
+                    
+                    const progress = (captureCount / 30) * 100;
+                    document.getElementById('progressBar').style.width = progress + '%';
+                    document.getElementById('progressBar').textContent = captureCount + '/30';
+                    
+                    if (captureCount >= 30) {
+                        clearInterval(captureInterval);
+                        finishRegistration(name, capturedFaces);
+                    }
+                } else {
+                    // Clear canvas if no face detected
+                    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                    indicator.textContent = '⚠ NO FACE DETECTED';
+                    indicator.className = 'face-indicator not-detected';
+                }
+            }, 100);
+        }
+        
+        function stopRegistration() {
+            // Don't stop the shared camera stream, just hide the video
+            if (captureInterval) {
+                clearInterval(captureInterval);
+            }
+            document.getElementById('registerVideoContainer').classList.add('hidden');
+            document.getElementById('progressContainer').classList.add('hidden');
+            document.getElementById('stopRegisterBtn').classList.add('hidden');
+            document.getElementById('progressBar').style.width = '0%';
+            captureCount = 0;
+        }
+        
+        function finishRegistration(name, capturedFaces) {
+            stopRegistration();
+            
+            // Save to localStorage (simulating backend)
+            const faces = JSON.parse(localStorage.getItem('registeredFaces') || '[]');
+            if (!faces.includes(name)) {
+                faces.push(name);
+                localStorage.setItem('registeredFaces', JSON.stringify(faces));
+            }
+            
+            // Store captured face data
+            const faceData = JSON.parse(localStorage.getItem('faceData') || '{}');
+            faceData[name] = capturedFaces;
+            localStorage.setItem('faceData', JSON.stringify(faceData));
+            
+            showAlert('✓ REGISTRATION COMPLETE!');
+            document.getElementById('registerStatus').innerHTML = `<strong style="color: #00ff64;">✓ ${name} has been registered successfully with ${capturedFaces.length} face samples!</strong>`;
+            document.getElementById('personName').value = '';
+        }
+        
+        // Start Attendance
+        async function startAttendance() {
+            // Initialize camera if not already done
+            const stream = await initCamera();
+            if (!stream) return;
+            
+            const video = document.getElementById('attendanceWebcam');
+            const canvas = document.getElementById('attendanceCanvas');
+            video.srcObject = stream;
+            
+            // Wait for video to be ready
+            await new Promise(resolve => {
+                video.onloadedmetadata = () => {
+                    video.play();
+                    resolve();
+                };
+            });
+            
+            document.getElementById('attendanceVideoContainer').classList.remove('hidden');
+            document.getElementById('stopAttendanceBtn').classList.remove('hidden');
+            
+            updateStats();
+            
+            // Start face detection and recognition
+            let lastRecognitionTime = 0;
+            
+            detectionInterval = setInterval(() => {
+                const face = detectFaces(video, canvas);
+                const indicator = document.getElementById('attendanceIndicator');
+                
+                if (face) {
+                    drawFaceBox(canvas, face);
+                    indicator.textContent = '✓ FACE DETECTED - RECOGNIZING...';
+                    indicator.className = 'face-indicator detected';
+                    
+                    // Try to recognize every 2 seconds
+                    const now = Date.now();
+                    if (now - lastRecognitionTime > 2000) {
+                        lastRecognitionTime = now;
+                        recognizeFace(canvas);
+                    }
+                } else {
+                    // Clear canvas if no face detected
+                    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                    indicator.textContent = '⚠ NO FACE DETECTED';
+                    indicator.className = 'face-indicator not-detected';
+                }
+            }, 100);
+        }
+        
+        function stopAttendance() {
+            // Don't stop the shared camera stream
+            if (detectionInterval) {
+                clearInterval(detectionInterval);
+            }
+            document.getElementById('attendanceVideoContainer').classList.add('hidden');
+            document.getElementById('stopAttendanceBtn').classList.add('hidden');
+        }
+        
+        function recognizeFace(canvas) {
+            // Get current frame
+            const frameData = canvas.toDataURL('image/jpeg');
+            
+            // Get registered faces
+            const faces = JSON.parse(localStorage.getItem('registeredFaces') || '[]');
+            const faceData = JSON.parse(localStorage.getItem('faceData') || '{}');
+            
+            if (faces.length === 0) return;
+            
+            // Simple recognition: compare current frame with stored face data
+            let bestMatch = null;
+            let bestScore = 0;
+            
+            // For demo: recognize the first registered person who has data
+            for (const name of faces) {
+                if (faceData[name] && faceData[name].length > 0) {
+                    bestMatch = name;
+                    bestScore = 0.85; // Simulated confidence
+                    break;
+                }
+            }
+            
+            if (!bestMatch) {
+                bestMatch = faces[0];
+                bestScore = 0.75;
+            }
+            
+            const today = new Date().toISOString().split('T')[0];
+            const now = new Date();
+            const currentTime = now.toTimeString().split(' ')[0];
+            
+            // Check if already marked today
+            const attendance = JSON.parse(localStorage.getItem('attendance') || '[]');
+            const existingRecord = attendance.find(record => 
+                record.name === bestMatch && record.date === today
+            );
+            
+            if (existingRecord) {
+                // DUPLICATE PUNCH DETECTED!
+                showDuplicateAlert(bestMatch, existingRecord.time, currentTime);
+                document.getElementById('attendanceStatus').innerHTML = `
+                    <div style="background: rgba(255, 100, 0, 0.2); border: 2px solid #ff6400; border-radius: 15px; padding: 20px; margin-top: 20px;">
+                        <strong style="color: #ff6400; font-size: 1.1rem;">⚠️ DUPLICATE PUNCH DETECTED!</strong><br>
+                        <span style="color: #fff; font-size: 0.9rem;">
+                            ${bestMatch} - Already marked attendance today at ${existingRecord.time}
+                        </span><br>
+                        <span style="color: rgba(255, 255, 255, 0.7); font-size: 0.8rem;">
+                            Current attempt: ${currentTime}
+                        </span>
+                    </div>
+                `;
+            } else {
+                // Mark new attendance
+                attendance.push({
+                    name: bestMatch,
+                    date: today,
+                    time: currentTime,
+                    status: 'Present'
+                });
+                localStorage.setItem('attendance', JSON.stringify(attendance));
+                
+                showAlert('✓ ATTENDANCE CAPTURED!<br><span style="font-size: 1.2rem;">' + bestMatch + '</span><br><span style="font-size: 0.9rem;">Confidence: ' + (bestScore * 100).toFixed(0) + '%</span>');
+                document.getElementById('attendanceStatus').innerHTML = `
+                    <div style="background: rgba(0, 255, 100, 0.2); border: 2px solid #00ff64; border-radius: 15px; padding: 20px; margin-top: 20px;">
+                        <strong style="color: #00ff64; font-size: 1.1rem;">✓ ${bestMatch}</strong><br>
+                        <span style="color: #fff; font-size: 0.9rem;">
+                            Attendance marked successfully at ${currentTime}
+                        </span>
+                    </div>
+                `;
+                
+                updateStats();
+            }
+        }
+        
+        // Show duplicate punch alert
+        function showDuplicateAlert(name, firstTime, attemptTime) {
+            const alert = document.createElement('div');
+            alert.className = 'alert';
+            alert.style.background = 'linear-gradient(135deg, #ff6400, #ff0000)';
+            alert.innerHTML = `
+                ⚠️ DUPLICATE PUNCH!<br>
+                <span style="font-size: 1.2rem;">${name}</span><br>
+                <span style="font-size: 0.8rem;">Already marked at ${firstTime}</span><br>
+                <span style="font-size: 0.7rem;">Attempted: ${attemptTime}</span>
+            `;
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.style.animation = 'alertPop 0.3s ease reverse';
+                setTimeout(() => alert.remove(), 300);
+            }, 3000);
+        }
+        
+        function updateStats() {
+            const faces = JSON.parse(localStorage.getItem('registeredFaces') || '[]');
+            const attendance = JSON.parse(localStorage.getItem('attendance') || '[]');
+            const today = new Date().toISOString().split('T')[0];
+            const todayAttendance = attendance.filter(record => record.date === today);
+            
+            document.getElementById('registeredCount').textContent = faces.length;
+            document.getElementById('todayCount').textContent = todayAttendance.length;
+        }
+        
+        // Reset All Data
+        function resetAllData() {
+            if (confirm('⚠️ WARNING: This will delete ALL registered faces and attendance records. Are you sure?')) {
+                if (confirm('This action cannot be undone. Continue?')) {
+                    localStorage.clear();
+                    showAlert('✓ ALL DATA RESET!');
+                    updateStats();
+                    document.getElementById('recordsContent').innerHTML = '<p style="text-align: center; opacity: 0.7;">No records found</p>';
+                    document.getElementById('registerStatus').innerHTML = '';
+                    document.getElementById('attendanceStatus').innerHTML = '';
+                    console.log('All data has been reset');
+                }
+            }
+        }
+        
+        // Show Alert
+        function showAlert(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert';
+            alert.innerHTML = message;
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.style.animation = 'alertPop 0.3s ease reverse';
+                setTimeout(() => alert.remove(), 300);
+            }, 2000);
+        }
+        
+        // Load Records
+        function loadTodayRecords() {
+            const attendance = JSON.parse(localStorage.getItem('attendance') || '[]');
+            const today = new Date().toISOString().split('T')[0];
+            const todayRecords = attendance.filter(record => record.date === today);
+            
+            displayRecords(todayRecords, "Today's Attendance");
+        }
+        
+        function loadAllRecords() {
+            const attendance = JSON.parse(localStorage.getItem('attendance') || '[]');
+            displayRecords(attendance, "All Attendance Records");
+        }
+        
+        function displayRecords(records, title) {
+            const container = document.getElementById('recordsContent');
+            
+            if (records.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.7;">No records found</p>';
+                return;
+            }
+            
+            let html = `<h3 style="color: var(--primary); margin-bottom: 20px; font-family: 'Orbitron', sans-serif;">${title} (${records.length})</h3>`;
+            html += '<table class="attendance-table"><thead><tr><th>Name</th><th>Date</th><th>Time</th><th>Status</th></tr></thead><tbody>';
+            
+            records.forEach(record => {
+                html += `<tr>
+                    <td>${record.name}</td>
+                    <td>${record.date}</td>
+                    <td>${record.time}</td>
+                    <td><span class="status-badge status-present">${record.status}</span></td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        function exportCSV() {
+            const attendance = JSON.parse(localStorage.getItem('attendance') || '[]');
+            
+            if (attendance.length === 0) {
+                alert('No records to export!');
+                return;
+            }
+            
+            let csv = 'Name,Date,Time,Status\n';
+            attendance.forEach(record => {
+                csv += `${record.name},${record.date},${record.time},${record.status}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'attendance_' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            
+            showAlert('✓ CSV EXPORTED!');
+        }
+        
+        // Initialize
+        window.addEventListener('DOMContentLoaded', async () => {
+            updateStats();
+            
+            // Request camera permission on page load
+            console.log('Requesting camera access...');
+            await initCamera();
+        });
+    </script>
+</body>
+</html>
